@@ -5,7 +5,7 @@ from . operators.callbacks import executeCallback
 from . utils.depsgraph import getActiveDepsgraph
 from . data_structures import (Vector3DList, EdgeIndicesList, PolygonIndicesList,
                                FloatList, UShortList, UIntegerList, Vector2DList,
-                               ColorList, DoubleList, LongList, BooleanList)
+                               ColorList, DoubleList, LongList, BooleanList, Int2List)
 
 def register():
     bpy.types.Context.getActiveAnimationNodeTree = getActiveAnimationNodeTree
@@ -73,7 +73,7 @@ class MeshProperties(bpy.types.PropertyGroup):
         return areas
 
     def getPolygonMaterialIndices(self):
-        indices = UShortList(length = len(self.mesh.polygons))
+        indices = UIntegerList(length = len(self.mesh.polygons))
         self.mesh.polygons.foreach_get("material_index", indices.asMemoryView())
         return indices
 
@@ -95,19 +95,28 @@ class MeshProperties(bpy.types.PropertyGroup):
         return vertexColors
 
     def getEdgeCreases(self):
+        attribute = self.mesh.attributes.get("crease_edge")
+        if not attribute or len(attribute.data) != len(self.mesh.edges):
+            return DoubleList.fromValue(0, length = len(self.mesh.edges))
         edgeCreases = DoubleList(length = len(self.mesh.edges))
-        self.mesh.edges.foreach_get("crease", edgeCreases.asNumpyArray())
+        attribute.data.foreach_get("value", edgeCreases.asNumpyArray())
         return edgeCreases
 
     def getBevelEdgeWeights(self):
+        attribute = self.mesh.attributes.get("bevel_weight_edge")
+        if not attribute or len(attribute.data) != len(self.mesh.edges):
+            return DoubleList.fromValue(0, length = len(self.mesh.edges))
         bevelEdgeWeights = DoubleList(length = len(self.mesh.edges))
-        self.mesh.edges.foreach_get("bevel_weight", bevelEdgeWeights.asNumpyArray())
+        attribute.data.foreach_get("value", bevelEdgeWeights.asNumpyArray())
         return bevelEdgeWeights
 
     def getBevelVertexWeights(self):
+        attribute = self.mesh.attributes.get("bevel_weight_vert")
+        if not attribute or len(attribute.data) != len(self.mesh.vertices):
+            return DoubleList.fromValue(0, length = len(self.mesh.vertices))
         bevelVertexWeights = DoubleList(length = len(self.mesh.vertices))
-        self.mesh.vertices.foreach_get("bevel_weight", bevelVertexWeights.asNumpyArray())
-        return bevelVertexWeights       
+        attribute.data.foreach_get("value", bevelVertexWeights.asNumpyArray())
+        return bevelVertexWeights
 
     def getCustomAttribute(self, name):
         attribute = self.mesh.attributes.get(name)
@@ -125,6 +134,8 @@ class MeshProperties(bpy.types.PropertyGroup):
             data = DoubleList(length = amount)
         elif attribute.data_type == "INT":
             data = LongList(length = amount)
+        elif attribute.data_type == "INT32_2D":
+            data = Int2List(length = amount)
         elif attribute.data_type == "FLOAT2":
             data = Vector2DList(length = amount)
         elif attribute.data_type == "FLOAT_VECTOR":
@@ -132,9 +143,9 @@ class MeshProperties(bpy.types.PropertyGroup):
         elif attribute.data_type in ("FLOAT_COLOR", "BYTE_COLOR"):
             data = ColorList(length = amount)
         else:
-            data = BooleanList(False, length = amount)
+            data = BooleanList(length = amount)
 
-        if attribute.data_type in ("FLOAT", "INT", "BOOLEAN"):
+        if attribute.data_type in ("FLOAT", "INT", "INT32_2D", "BOOLEAN"):
             attribute.data.foreach_get("value", data.asNumpyArray())
         elif attribute.data_type in ("FLOAT2", "FLOAT_VECTOR"):
             attribute.data.foreach_get("vector", data.asNumpyArray())

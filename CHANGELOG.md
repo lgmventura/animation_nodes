@@ -2,6 +2,16 @@
 
 ### Added
 
+### Fixed
+
+- Fixed Sequence sockets for recent API change.
+
+### Changed
+
+## 2.3 (25 January 2025)
+
+### Added
+
 - Added support for splines in *3D Viewer* node.
 - Added built-in attributes for Mesh object.
 - Added Vertex Group as attribute for Mesh object.
@@ -11,6 +21,7 @@
 - Added Container Type advanced option to object instancer node.
 - Added Evaluate FCurves Transforms node.
 - Added *Lamp Input* and *Lamp Output* nodes.
+- Added *Int2* list and socket type.
 
 ### Fixed
 
@@ -25,6 +36,21 @@
 - Fixed Grease Pencil Nodes for API changes.
 - Fixed missing output for input list nodes.
 - Fixed error when using multiple subprogram nodes.
+- Fixed Transform Vector node modifying its inputs.
+- Fixed incorrect position of UI extensions.
+- Fixed incorrect loading of boolean mesh attribute.
+- Fixed *BMesh Mesh Data* not loading indices.
+- Fixed *Set Bevel Vertex Weight* and *Set Bevel Edge Weight* nodes for API changes.
+- Fixed *Set Keyframe* node failing when path contains a subscript.
+- Fixed symbol not found error on MacOS 10.
+- Fixed Custom Attributes for new API changes.
+- Fixed *Distribute Matrices* node causing superfluous executions.
+- Fixed *Mesh Object Input* node for new API changes.
+- Fixed *Set Vertex Weight* node for new API changes.
+- Fixed *Set Edge Weight* node for new API changes.
+- Fixed *Set Edge Crease* node for new API changes.
+- Fixed *Mesh Object Output* node for boolean custom attributes.
+- Fixed *3D Viewer* node for matrices due to new API changes.
 
 ### Changed
 
@@ -35,6 +61,8 @@
 - Avoid unnecessary updates caused by *Object Visibility Output* node.
 - Avoid unnecessary updates caused by *Viewer* node.
 - Fix nodes accessible to other node systems.
+- Allow Insert Custom Attribute node to rewriting an existing attribute.
+- Replace deprecated BGL calls with GPU module calls.
 
 
 ## 2.2.2 (16 August 2021)
@@ -331,6 +359,7 @@
 - Fixed the Ensure Animation Data option in the Mesh Object Output node.
 - Fixed crashes during rendering and exporting.
 - Fixed inconsistency between viewport, renders, and exports.
+- Fixed node tree not executing when a sequence editor is active.
 
 ### Changed
 

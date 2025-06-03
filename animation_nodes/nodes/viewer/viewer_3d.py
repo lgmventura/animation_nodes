@@ -1,6 +1,7 @@
 import os
 import bpy
 from bpy.props import *
+from pathlib import Path
 from ... draw_handler import drawHandler
 from ... base_types import AnimationNode
 from ... tree_info import getNodesByType
@@ -11,9 +12,7 @@ from ... nodes.vector.c_utils import convert_Vector2DList_to_Vector3DList
 from ... data_structures import Vector3DList, Vector2DList, Matrix4x4List, Spline, BezierSpline
 
 import gpu
-from bgl import *
 from gpu_extras.batch import batch_for_shader
-from ... graphics.import_shader import getShader
 from ... graphics.c_utils import getMatricesVBOandIBO
 
 dataByIdentifier = {}
@@ -92,20 +91,34 @@ class Viewer3DNode(AnimationNode, bpy.types.Node):
             dataByIdentifier[self.identifier] = DrawData(data, self.drawSpline)
 
     def drawVectors(self, vectors):
-        shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
         batch = batch_for_shader(shader, 'POINTS', {"pos": vectors.asNumpyArray().reshape(-1, 3)})
 
         shader.bind()
         shader.uniform_float("color", (*self.drawColor, 1))
 
-        glPointSize(self.width)
+        gpu.state.point_size_set(self.width)
         batch.draw(shader)
 
     def drawMatrices(self, matrices):
-        shader = getShader(os.path.join(os.path.dirname(__file__), "matrix_shader.glsl"))
+        vertex_shader_output = gpu.types.GPUStageInterfaceInfo("matrix_viewer_interface")
+        vertex_shader_output.flat("VEC4", "v_Color")
+
+        shader_info = gpu.types.GPUShaderCreateInfo()
+        shader_info.push_constant("INT", "u_Count")
+        shader_info.push_constant("MAT4", "u_ViewProjectionMatrix")
+        shader_info.vertex_in(0, 'VEC3', "position")
+        shader_info.vertex_out(vertex_shader_output)
+        shader_info.fragment_out(0, 'VEC4', "FragColor")
+
+        shader_path = os.path.join(os.path.dirname(__file__), "matrix_vertex_shader.glsl")
+        shader_info.vertex_source(Path(shader_path).read_text())
+        shader_info.fragment_source("void main() { FragColor = v_Color; }")
+
+        shader = gpu.shader.create_from_info(shader_info)
         vbo, ibo = getMatricesVBOandIBO(matrices, self.matrixScale)
         batch = batch_for_shader(shader, 'LINES',
-            {"pos": vbo.asNumpyArray().reshape(-1, 3)},
+            {"position": vbo.asNumpyArray().reshape(-1, 3)},
             indices = ibo.asNumpyArray().reshape(-1, 2))
 
         shader.bind()
@@ -113,7 +126,7 @@ class Viewer3DNode(AnimationNode, bpy.types.Node):
         shader.uniform_float("u_ViewProjectionMatrix", viewMatrix)
         shader.uniform_int("u_Count", len(matrices))
 
-        glLineWidth(self.width)
+        gpu.state.line_width_set(self.width)
         batch.draw(shader)
 
     def drawSpline(self, spline):
@@ -122,13 +135,13 @@ class Viewer3DNode(AnimationNode, bpy.types.Node):
             vectors = spline.getDistributedPoints(self.pointAmount, 0, 1, 'RESOLUTION')
         lineType = 'LINE_LOOP' if spline.cyclic else 'LINE_STRIP'
 
-        shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+        shader = gpu.shader.from_builtin('UNIFORM_COLOR')
         batch = batch_for_shader(shader, lineType, {"pos": vectors.asNumpyArray().reshape(-1, 3)})
 
         shader.bind()
         shader.uniform_float("color", (*self.drawColor, 1))
 
-        glLineWidth(self.width)
+        gpu.state.line_width_set(self.width)
         batch.draw(shader)
 
     def delete(self):
