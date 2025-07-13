@@ -12,7 +12,6 @@ class ReadMIDIFileNode(AnimationNode, bpy.types.Node):
         self.newInput("Text", "Path", "path", showFileChooser = True)
         self.newOutput("MIDI Track List", "Tracks", "tracks")
         self.newOutput("MIDI Tempo Event List", "Tempo Events", "tempos")
-        self.newOutput("MIDI Time Signature Event List", "Time Signature Events", "timeSignatures")
 
     def draw(self, layout):
         if self.inputs[0].isUnlinked:

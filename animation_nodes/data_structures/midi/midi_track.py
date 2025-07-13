@@ -1,5 +1,6 @@
 from typing import List
 from . midi_note import MIDINote
+from . midi_time_signature_event import MIDITimeSignatureEvent
 from dataclasses import dataclass, field
 
 @dataclass
@@ -7,6 +8,7 @@ class MIDITrack:
     name: str = ""
     index: int = 0
     notes: List[MIDINote] = field(default_factory = list)
+    timeSignatures: List[MIDITimeSignatureEvent] = field(default_factory = list)
 
     def evaluate(self, time, channel, noteNumber, 
         attackTime, attackInterpolation, decayTime, decayInterpolation, sustainLevel, 
@@ -35,4 +37,4 @@ class MIDITrack:
         return noteValues
 
     def copy(self):
-        return MIDITrack(self.name, self.index, [n.copy() for n in self.notes])
+        return MIDITrack(self.name, self.index, [n.copy() for n in self.notes], [m.copy() for m in self.timeSignatures])

@@ -118,10 +118,11 @@ def readMIDIFileCached(path, lastModification):
     midiFile = MidiFile.fromFile(path)
     tempoMap = TempoMap(midiFile)
     tracks = []
-    timeSignatures = []
-    fileTracks = midiFile.tracks if midiFile.midiFormat != 1 else midiFile.tracks[1:]
+    # fileTracks = midiFile.tracks if midiFile.midiFormat != 1 else midiFile.tracks[1:]
+    fileTracks = midiFile.tracks  # we might need the track 0 either way for other events
     for trackIndex, track in enumerate(fileTracks):
         notes = []
+        timeSignatures = []
         trackName = ""
         trackState = TrackState()
         for event in track.events:
@@ -147,7 +148,7 @@ def readMIDIFileCached(path, lastModification):
                                            trackState.timeInTicks / midiFile.ppqn,
                                            trackState.timeInSeconds,
                                            event.numerator,
-                                           event.denominator))
-        tracks.append(MIDITrack(trackName, trackIndex, notes))
+                                           2**event.denominator))  # because it is given as exponent of 2 in midi
+        tracks.append(MIDITrack(trackName, trackIndex, notes, timeSignatures))
         tempos = tempoMap.TempoEvents
-    return tracks, tempos, timeSignatures
+    return tracks, tempos

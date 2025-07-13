@@ -9,8 +9,9 @@ class MIDITrackInfoNode(AnimationNode, bpy.types.Node):
         self.newInput("MIDI Track", "Track", "track")
 
         self.newOutput("MIDI Note List", "Notes", "notes")
+        self.newOutput("MIDI Time Signature Event List", "Time Signature Events", "timeSignatures")
         self.newOutput("Text", "Name", "name")
         self.newOutput("Integer", "Index", "index")
 
     def execute(self, track):
-        return track.notes, track.name, track.index
+        return track.notes, track.timeSignatures, track.name, track.index
