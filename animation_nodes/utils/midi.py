@@ -2,12 +2,13 @@ import os
 from functools import lru_cache
 from dataclasses import dataclass
 from .. libs.midiparser.parser import MidiFile
-from .. data_structures import MIDITrack, MIDINote, MIDITempoEvent
+from .. data_structures import MIDITrack, MIDINote, MIDITempoEvent, MIDITimeSignatureEvent
 from .. libs.midiparser.events import (
     TempoEvent,
     NoteOnEvent,
     NoteOffEvent,
     TrackNameEvent,
+    TimeSignatureEvent,
 )
 
 def readMIDIFile(path):
@@ -117,6 +118,7 @@ def readMIDIFileCached(path, lastModification):
     midiFile = MidiFile.fromFile(path)
     tempoMap = TempoMap(midiFile)
     tracks = []
+    timeSignatures = []
     fileTracks = midiFile.tracks if midiFile.midiFormat != 1 else midiFile.tracks[1:]
     for trackIndex, track in enumerate(fileTracks):
         notes = []
@@ -139,6 +141,13 @@ def readMIDIFileCached(path, lastModification):
                 notes.append(MIDINote(event.channel, event.note,
                                       startTime_s, endTime_s,
                                       startTime_qn, endTime_qn, velocity))
+            elif isinstance(event, TimeSignatureEvent):
+                timeSignatures.append(
+                    MIDITimeSignatureEvent(trackState.timeInTicks,
+                                           trackState.timeInTicks / midiFile.ppqn,
+                                           trackState.timeInSeconds,
+                                           event.numerator,
+                                           event.denominator))
         tracks.append(MIDITrack(trackName, trackIndex, notes))
         tempos = tempoMap.TempoEvents
-    return tracks, tempos
+    return tracks, tempos, timeSignatures

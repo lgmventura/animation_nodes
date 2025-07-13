@@ -1,7 +1,7 @@
 import bpy
 from ... base_types import AnimationNode, VectorizedSocket
 
-class MIDINoteInfoNode(AnimationNode, bpy.types.Node):
+class MIDITempoEventInfoNode(AnimationNode, bpy.types.Node):
     bl_idname = "an_MIDITempoEventInfoNode"
     bl_label = "MIDI Tempo Event Info"
 

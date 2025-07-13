@@ -704,6 +704,7 @@ class SoundMenu(bpy.types.Menu):
         insertNode(layout, "an_MIDITrackInfoNode", "MIDI Track Info")
         insertNode(layout, "an_MIDINoteInfoNode", "MIDI Note Info")
         insertNode(layout, "an_MIDITempoEventInfoNode", "MIDI Tempo Event Info")
+        insertNode(layout, "an_MIDITimeSignatureInfoNode", "MIDI Time Signature Event Info")
         insertNode(layout, "an_EvaluateMIDITrackNode", "Evaluate MIDI Track")
 
 class SequenceMenu(bpy.types.Menu):

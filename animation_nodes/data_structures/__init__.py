@@ -39,6 +39,7 @@ def importDataStructures():
     from . midi.midi_note import MIDINote
     from . midi.midi_track import MIDITrack
     from . midi.midi_tempo_event import MIDITempoEvent
+    from . midi.midi_time_signature_event import MIDITimeSignatureEvent
 
     from . action import (
         Action, ActionEvaluator, ActionChannel,
