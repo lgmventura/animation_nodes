@@ -27,4 +27,4 @@ Example of a node tree to create a MIDI animation accelerating the pan instead o
 Permits access to the tempo changes in the MIDI file. If you want something to move or go faster in your animation when there is an accelerando or a sudden tempo change, this is the right node to use. You will access the tempos directly from the MIDI file reader nodes as a list of tempo changes that start in a given time as a multiple of quavers (quarter notes).
 
 ### Time signatures info node
-This can access the time signatures from a MIDI track (via track info node), retrieving when it starts, the numerator and the denominator. If you want to animate a metronome, a conductor or a dancer, this is the right node for it ;).
+This can access the time signatures from a MIDI track (via track info node), retrieving when it starts, the numerator and the denominator. If you want to animate a metronome, a conductor or a dancer, this is the right node for it ;). Or if you are creating and animating some kind of moving notes or moving blocks or shapes, you can use this to create the correct barlines that divide each measure.
